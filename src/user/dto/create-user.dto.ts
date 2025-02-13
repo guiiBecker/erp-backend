@@ -8,8 +8,9 @@ import {
 } from 'class-validator';
 
 export class CreateUserDto extends User {
-  @IsEmail()
-  email: string;
+ 
+  @IsString()
+  username: string;
 
   @IsString()
   @MinLength(4)
