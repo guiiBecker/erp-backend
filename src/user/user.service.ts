@@ -21,15 +21,19 @@ export class UserService {
       ...createdUser,
       password:undefined,
     }};
+
+    findbyUsername(username: string) {
+      this.prisma.user.findUnique({
+        where : {username},
+      })
+    }
   }
 
 //   findAll() {
 //     return `This action returns all user`;
 //   }
 
-//   findOne(id: number) {
-//     return `This action returns a #${id} user`;
-//   }
+
 
 //   update(id: number, updateUserDto: UpdateUserDto) {
 //     return `This action updates a #${id} user`;
