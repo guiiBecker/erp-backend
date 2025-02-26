@@ -22,8 +22,8 @@ export class UserService {
       password:undefined,
     }};
 
-    findbyUsername(username: string) {
-      this.prisma.user.findUnique({
+    async findbyUsername(username: string) {
+      return this.prisma.user.findUnique({
         where : {username},
       })
     }
