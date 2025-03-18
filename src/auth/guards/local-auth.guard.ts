@@ -13,7 +13,7 @@ import {
   
     handleRequest(err, user) {
       if (err || !user) {
-        throw new UnauthorizedException(err?.message);
+        throw new UnauthorizedException(err?.message || 'Credenciais inválidas');
       }
   
       return user;

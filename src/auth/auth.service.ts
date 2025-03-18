@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/user/entities/user.entity';
@@ -13,29 +13,34 @@ export class AuthService {
         private readonly jwtService: JwtService,){}
      
     login(user: User): UserToken {
-        const paylod:UserPayload= {
+        const payload: UserPayload = {
             id: user.id,
             name: user.name,
             username: user.username,
-        } 
-        const jwtToken = this.jwtService.sign(paylod)
+        };
+        const jwtToken = this.jwtService.sign(payload);
 
         return {
             access_token: jwtToken
-        }
+        };
     }
-    async validateUser(username: string, password: string) {
-       const user = await this.userService.findbyUsername(username);
-        if (user){
-            const passwordValid = await bcrypt.compare(password, user.password);
 
-            if (passwordValid){
-                return {
-                    ...user, 
-                    password:undefined,
-                }
-            }
+    async validateUser(username: string, password: string) {
+        const user = await this.userService.findbyUsername(username);
+        
+        if (!user) {
+            throw new UnauthorizedException('Usuário ou senha incorretos');
         }
-        throw new Error ('User or Password are incorrect.')
+        
+        const passwordValid = await bcrypt.compare(password, user.password);
+
+        if (!passwordValid) {
+            throw new UnauthorizedException('Usuário ou senha incorretos');
+        }
+        
+        return {
+            ...user, 
+            password: undefined,
+        };
     }
 }

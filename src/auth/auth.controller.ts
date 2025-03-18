@@ -2,17 +2,17 @@ import { Controller, HttpCode, HttpStatus, Post, Request, UseGuards } from '@nes
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthRequest } from './models/AuthRequest';
-import { userInfo } from 'os';
+import { IsPublic } from './decorators/is-public.decorator';
 
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authservice: AuthService) {}
 
+    @IsPublic()
     @Post('login')
     @HttpCode(HttpStatus.OK)
     @UseGuards(LocalAuthGuard)
-    login(@Request() req:AuthRequest){
-        console.log(req.user)
-        return this.authservice.login(req.user)
+    login(@Request() req: AuthRequest){
+        return this.authservice.login(req.user);
     }
 }
