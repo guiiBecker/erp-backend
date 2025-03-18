@@ -1,6 +1,16 @@
 # ERP Backend
 
-Sistema de backend para ERP com autenticação baseada em tokens JWT.
+Sistema de backend para ERP com autenticação baseada em tokens JWT, especializado no gerenciamento de pedidos para uma empresa de uniformes.
+
+## Visão Geral
+
+Este sistema foi desenvolvido para gerenciar toda a operação de uma empresa de uniformes, permitindo:
+
+- Gerenciamento de clientes e seus pedidos
+- Acompanhamento da produção em suas diferentes etapas
+- Gestão de entregas
+
+A autenticação robusta com tokens JWT garante que apenas usuários autorizados possam acessar as funcionalidades do sistema de acordo com seus níveis de permissão.
 
 ## Funcionalidades Implementadas
 
@@ -80,12 +90,23 @@ Sistema de backend para ERP com autenticação baseada em tokens JWT.
 
 ## Próximos Passos
 
+### Autenticação e Segurança
 - [ ] Implementar refresh tokens para renovação de sessões
 - [ ] Adicionar controle de dispositivos conectados
 - [ ] Criar sistema de permissões e roles
 - [ ] Adicionar limite de tentativas de login
 - [ ] Adicionar testes automatizados
 - [ ] Implementar rate limiting para proteção contra ataques
+
+### Sistema de Pedidos de Uniformes
+- [ ] Implementar módulo de clientes (cadastro, consulta, atualização)
+- [ ] Desenvolver sistema de pedidos com status de acompanhamento
+- [ ] Criar fluxo de produção com etapas (corte, costura, acabamento, etc.)
+- [ ] Desenvolver sistema de orçamentos com aprovação do cliente
+- [ ] Implementar controle de entregas
+- [ ] Criar relatórios de produção, vendas
+- [ ] Desenvolver dashboard para acompanhamento em tempo real
+- [ ] Implementar sistema de notificações para clientes e equipe
 
 ## Como Executar
 
