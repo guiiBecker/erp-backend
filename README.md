@@ -1,99 +1,109 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# ERP Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Sistema de backend para ERP com autenticação baseada em tokens JWT.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Funcionalidades Implementadas
 
-## Description
+### Autenticação
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Login de usuário**: Endpoint para login com username e password
+- **Sistema de Tokens JWT**: Geração de tokens JWT para sessões autenticadas
+- **Armazenamento de Tokens**: Persistência dos tokens no banco de dados vinculados a usuários
+- **Guarda Global**: Proteção automática de todas as rotas não marcadas como públicas
 
-## Project setup
+### Gerenciamento de Tokens
 
-```bash
-$ npm install
-```
+- **Validação de Tokens**: Verificação de tokens via header Authorization
+- **Expiração de Tokens**: Tokens com validade de 30 dias
+- **Limpeza de Tokens**: Remoção automática de tokens expirados
+- **Revogação de Tokens**: Possibilidade de revogar tokens específicos ou de um usuário
 
-## Compile and run the project
+### Endpoints Disponíveis
 
-```bash
-# development
-$ npm run start
+#### Autenticação
 
-# watch mode
-$ npm run start:dev
+- `POST /auth/login`: Login de usuário (público)
+  - Corpo: `{ "username": "...", "password": "..." }`
+  - Retorno: `{ "access_token": "..." }`
 
-# production mode
-$ npm run start:prod
-```
+#### Gerenciamento de Tokens
 
-## Run tests
+- `GET /auth/tokens/verify`: Verificação de token
+  - Header: `Authorization: Bearer seu-token-aqui`
+  - Retorno: `{ "valid": true|false, "message": "..." }`
 
-```bash
-# unit tests
-$ npm run test
+- `GET /auth/tokens/user-info`: Obtenção de informações do usuário a partir do token
+  - Header: `Authorization: Bearer seu-token-aqui`
+  - Retorno: Informações do usuário (id, username, name)
 
-# e2e tests
-$ npm run test:e2e
+- `GET /auth/tokens`: Listagem de tokens do usuário (autenticado)
+  - Header: `Authorization: Bearer seu-token-aqui`
+  - Retorno: Lista de tokens ativos
 
-# test coverage
-$ npm run test:cov
-```
+- `DELETE /auth/tokens`: Remoção de todos os tokens do usuário (autenticado)
+  - Header: `Authorization: Bearer seu-token-aqui`
+  - Retorno: Confirmação de remoção
 
-## Deployment
+- `DELETE /auth/tokens/expired`: Remoção de tokens expirados (autenticado)
+  - Header: `Authorization: Bearer seu-token-aqui`
+  - Retorno: Quantidade de tokens removidos
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- `DELETE /auth/tokens/:id`: Remoção de um token específico (autenticado)
+  - Header: `Authorization: Bearer seu-token-aqui`
+  - Corpo: `{ "id": "token-id" }`
+  - Retorno: Confirmação de remoção
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Estrutura do Projeto
 
-```bash
-$ npm install -g mau
-$ mau deploy
-```
+- `src/auth`: Módulo de autenticação
+  - `controllers`: Controladores de autenticação
+  - `guards`: Guardas de autenticação (JwtAuthGuard, LocalAuthGuard)
+  - `models`: Interfaces e DTOs
+  - `strategies`: Estratégias Passport.js (JWT, Local)
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+- `src/token`: Módulo de gerenciamento de tokens
+  - `controllers`: API para gerenciamento de tokens
+  - `guards`: Guardas específicos para verificação de tokens
+  - `models`: Interfaces e DTOs
+  - `middleware`: Middleware para verificação de tokens
 
-## Resources
+- `src/user`: Módulo de usuários
+  - `entities`: Entidade User
+  - `dto`: DTOs para criação e atualização de usuários
 
-Check out a few resources that may come in handy when working with NestJS:
+## Segurança
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- Senhas armazenadas com hash usando bcrypt
+- Tokens JWT assinados com chave secreta
+- Tokens podem ser revogados individualmente
+- Validação dupla: JWT válido + registro no banco
 
-## Support
+## Próximos Passos
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- [ ] Implementar refresh tokens para renovação de sessões
+- [ ] Adicionar controle de dispositivos conectados
+- [ ] Implementar logging de tentativas de login
+- [ ] Criar sistema de permissões e roles
+- [ ] Adicionar limite de tentativas de login
+- [ ] Desenvolver módulo de cadastro/recuperação de senha
+- [ ] Implementar autenticação em dois fatores (2FA)
+- [ ] Adicionar testes automatizados
+- [ ] Documentar API com Swagger
+- [ ] Implementar rate limiting para proteção contra ataques
 
-## Stay in touch
+## Como Executar
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+1. Clone o repositório
+2. Instale as dependências: `npm install`
+3. Configure as variáveis de ambiente no arquivo `.env`
+4. Execute as migrações do Prisma: `npx prisma migrate dev`
+5. Inicie o servidor: `npm run start:dev`
 
-## License
+## Tecnologias Utilizadas
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- NestJS: Framework Node.js para backend
+- Prisma: ORM para acesso ao banco de dados
+- PostgreSQL: Banco de dados relacional
+- Passport.js: Biblioteca de autenticação
+- JWT: Tokens para autenticação stateless
+- Bcrypt: Hashing de senhas
