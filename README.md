@@ -82,13 +82,9 @@ Sistema de backend para ERP com autenticação baseada em tokens JWT.
 
 - [ ] Implementar refresh tokens para renovação de sessões
 - [ ] Adicionar controle de dispositivos conectados
-- [ ] Implementar logging de tentativas de login
 - [ ] Criar sistema de permissões e roles
 - [ ] Adicionar limite de tentativas de login
-- [ ] Desenvolver módulo de cadastro/recuperação de senha
-- [ ] Implementar autenticação em dois fatores (2FA)
 - [ ] Adicionar testes automatizados
-- [ ] Documentar API com Swagger
 - [ ] Implementar rate limiting para proteção contra ataques
 
 ## Como Executar
