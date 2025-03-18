@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserPayload } from '../auth/models/UserPayload';
 
 @Injectable()
 export class TokenService {
+  private readonly logger = new Logger(TokenService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService
@@ -16,8 +18,11 @@ export class TokenService {
       const payload = this.jwtService.verify<UserPayload>(token);
       
       if (!payload || !payload.id) {
+        this.logger.warn('Payload inválido ou sem ID');
         return false;
       }
+
+      this.logger.debug(`Validando token para usuário ${payload.id}`);
 
       // Verifica se o token existe no banco de dados e não está expirado
       const dbToken = await this.prisma.token.findFirst({
@@ -30,8 +35,14 @@ export class TokenService {
         }
       });
 
-      return !!dbToken;
+      if (!dbToken) {
+        this.logger.warn(`Token não encontrado no banco para o usuário ${payload.id}`);
+        return false;
+      }
+
+      return true;
     } catch (error) {
+      this.logger.error(`Erro ao validar token: ${error.message}`);
       return false;
     }
   }

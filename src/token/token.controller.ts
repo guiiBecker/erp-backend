@@ -1,30 +1,40 @@
-import { Body, Controller, Delete, Get, Headers, HttpCode, HttpStatus, Post, Request, UseGuards, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, HttpCode, HttpStatus, Post, Request, UseGuards, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { TokenService } from './token.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
-import { TokenRequest } from './models/token-request';
+import { AuthRequest } from '../auth/models/AuthRequest';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/enums/role.enum';
 import { IsPublic } from '../auth/decorators/is-public.decorator';
 
 @Controller('auth/tokens')
 export class TokenController {
     constructor(private readonly tokenService: TokenService) {}
 
-    @Get()
     @UseGuards(JwtAuthGuard)
-    async getUserTokens(@Request() req: TokenRequest) {
+    @Get()
+    async getUserTokens(@Request() req: AuthRequest) {
+        if (!req.user.id) {
+            throw new BadRequestException('User ID is required');
+        }
         return this.tokenService.getUserTokens(req.user.id);
     }
 
-    @Delete()
     @UseGuards(JwtAuthGuard)
-    async deleteUserTokens(@Request() req: TokenRequest) {
-        return this.tokenService.deleteUserTokens(req.user.id);
+    @Delete()
+    async deleteUserTokens(@Request() req: AuthRequest) {
+        if (!req.user.id) {
+            throw new BadRequestException('User ID is required');
+        }
+        await this.tokenService.deleteUserTokens(req.user.id);
+        return { message: 'All tokens deleted successfully' };
     }
 
-    @Delete('expired')
     @UseGuards(JwtAuthGuard)
+    @Roles(Role.ADMIN, Role.ROOT)
+    @Delete('expired')
     async deleteExpiredTokens() {
         const count = await this.tokenService.deleteExpiredTokens();
-        return { message: `${count} tokens expirados foram removidos` };
+        return { message: `${count} expired tokens deleted successfully` };
     }
 
     @IsPublic()
@@ -74,7 +84,11 @@ export class TokenController {
 
     @Delete(':id')
     @UseGuards(JwtAuthGuard)
-    async deleteToken(@Request() req: TokenRequest, @Body('id') id: string) {
+    async deleteToken(@Request() req: AuthRequest, @Body('id') id: string) {
+        if (!req.user.id) {
+            throw new BadRequestException('User ID is required');
+        }
+        
         // Verifique primeiro se o token pertence ao usuário
         const token = await this.tokenService.findTokenByValue(id);
         

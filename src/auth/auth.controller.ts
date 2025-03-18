@@ -1,9 +1,10 @@
-import { Controller, Delete, Get, HttpCode, HttpStatus, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthRequest } from './models/AuthRequest';
 import { IsPublic } from './decorators/is-public.decorator';
 import { JwtAuthGuard } from './guards/jwt-auth.guards';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -15,6 +16,13 @@ export class AuthController {
     @UseGuards(LocalAuthGuard)
     login(@Request() req: AuthRequest){
         return this.authservice.login(req.user);
+    }
+
+    @IsPublic()
+    @Post('refresh')
+    @HttpCode(HttpStatus.OK)
+    async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+        return this.authservice.refreshToken(refreshTokenDto.refresh_token);
     }
 
     @Delete('tokens/expired')
@@ -34,5 +42,27 @@ export class AuthController {
         }
         const count = await this.authservice.removeUserTokens(req.user.id);
         return { message: `${count} tokens do usuário foram removidos` };
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('test-auth')
+    async testAuth(@Request() req: AuthRequest) {
+        return {
+            message: 'Autenticação bem-sucedida!',
+            userId: req.user.id,
+            username: req.user.username,
+            role: req.user.role
+        };
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('profile')
+    async getProfile(@Request() req: AuthRequest) {
+        return {
+            id: req.user.id,
+            username: req.user.username,
+            name: req.user.name,
+            role: req.user.role
+        };
     }
 }

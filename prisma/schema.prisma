@@ -13,12 +13,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ROOT
+  ADMIN
+  EMPLOYEE
+}
+
 model User {
-  id       Int     @id @default(autoincrement())
-  name     String
-  username String  @unique
-  password String
-  tokens   Token[] // Relacionamento com a tabela Token
+  id           Int            @id @default(autoincrement())
+  name         String
+  username     String         @unique
+  password     String
+  role         Role           @default(EMPLOYEE)
+  tokens       Token[]        // Relacionamento com a tabela Token
+  refreshTokens RefreshToken[] // Relacionamento com RefreshToken
 }
 
 model Token {
@@ -27,6 +35,17 @@ model Token {
   token     String   @unique
   createdAt DateTime @default(now())
   expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  isRevoked Boolean  @default(false)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
